@@ -35,6 +35,10 @@ class SyncObjConf(object):
         #: leader considered dead, and leader election starts.
         self.raftMinTimeout = kwargs.get('raftMinTimeout', 0.4)
 
+        #: After randomly selected timeout (in range from minTimeout to maxTimeout)
+        #: leader considered dead by Vice, and the Vice triggers an affirmation vote.
+        self.raftMinTimeoutforVice = kwargs.get('raftMinTimeoutforVice', 0.2)
+
         #: Same as raftMinTimeout
         self.raftMaxTimeout = kwargs.get('raftMaxTimeout', 1.4)
 
@@ -54,6 +58,12 @@ class SyncObjConf(object):
         #: for leaderFallbackTimeout - it will fallback to follower state.
         #: Should be more than appendEntriesPeriod.
         self.leaderFallbackTimeout = kwargs.get('leaderFallbackTimeout', 30.0)
+
+
+        #: When vice leader has no response from the majority of the cluster
+        #: for viceleaderFallbackTimeout - it will fallback to follower state.
+        #: Should be more than appendEntriesPeriod.
+        self.viceleaderFallbackTimeout = kwargs.get('viceleaderFallbackTimeout', 30.0)
 
         #: Send multiple entries in a single command.
         #: Enabled (default) - improve overall performance (requests per second)

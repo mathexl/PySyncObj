@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import sys
 import time
+from pprint import pprint
 from functools import partial
 sys.path.append("../")
 from pysyncobj import SyncObj, replicated
@@ -42,17 +43,20 @@ if __name__ == '__main__':
     n = 0
     old_value = -1
     while True:
-        # time.sleep(0.005)
-        time.sleep(0.5)
+        time.sleep(0.005)
+        pprint(vars(o))
+        #time.sleep(0.5)
         if o.getCounter() != old_value:
             old_value = o.getCounter()
             print(old_value)
         if o._getLeader() is None:
+            #print("no leader!")
             continue
         # if n < 2000:
         if n < 20:
             o.addValue(10, n, callback=partial(onAdd, cnt=n))
         n += 1
-        # if n % 200 == 0:
-        # if True:
-        #    print('Counter value:', o.getCounter(), o._getLeader(), o._getRaftLogSize(), o._getLastCommitIndex())
+        print("N:" + n)
+        if n % 20000 == 0:
+            #if True:
+            print('Counter value:', o.getCounter(), o._getLeader(), o._getRaftLogSize(), o._getLastCommitIndex())

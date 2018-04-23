@@ -7,6 +7,7 @@ import weakref
 import collections
 import functools
 import struct
+from random import randint
 import logging
 import copy
 import types
@@ -103,7 +104,9 @@ class SyncObj(object):
         :param consumers: objects to be replicated
         :type consumers: list of SyncObjConsumer inherited objects
         """
-
+        print("YES")
+        print("YES")
+        sys.stdout.flush()
         if conf is None:
             self.__conf = SyncObjConf()
         else:
@@ -138,6 +141,7 @@ class SyncObj(object):
         self.__votedFor = None
         self.__votesCount = 0
         self.__raftLeader = None
+        self.__raftViceLeader = None
         self.__raftElectionDeadline = time.time() + self.__generateRaftTimeout()
         self.__raftLog = createJournal(self.__conf.journalFile)
         if len(self.__raftLog) == 0:
@@ -526,6 +530,28 @@ class SyncObj(object):
             self.__needLoadDumpFile = False
 
         if self.__raftState in (_RAFT_STATE.FOLLOWER, _RAFT_STATE.CANDIDATE) and self.__selfNodeAddr is not None:
+            #am vice
+            #print("vice: " + str(self.__raftViceLeader))
+            #print("me: " + str(self.__selfNodeAddr))
+            if (self.__raftElectionDeadline / 2) < time.time() and self.__connectedToAnyone() and self.__raftViceLeader == self.__selfNodeAddr:
+                self.__raftElectionDeadline = time.time() + self.__generateRaftTimeout()
+                self.__raftLeader = None
+                self.__setState(_RAFT_STATE.CANDIDATE)
+                self.__raftCurrentTerm += 1
+                self.__votedFor = self._getSelfNodeAddr()
+                self.__votesCount = 1
+                for node in self.__nodes:
+                    node.send({
+                        'type': 'request_vote',
+                        'term': self.__raftCurrentTerm,
+                        'last_log_index': self.__getCurrentLogIndex(),
+                        'last_log_term': self.__getCurrentLogTerm(),
+                    })
+                self.__onLeaderChanged()
+                if self.__votesCount > (len(self.__nodes) + 1) / 2:
+                    print("NEW LEADER BY ELEC (VICE)")
+                    self.__onBecomeLeader()
+
             if self.__raftElectionDeadline < time.time() and self.__connectedToAnyone():
                 self.__raftElectionDeadline = time.time() + self.__generateRaftTimeout()
                 self.__raftLeader = None
@@ -542,6 +568,10 @@ class SyncObj(object):
                     })
                 self.__onLeaderChanged()
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
+                    print("NEW LEADER BY ELEC")
+
+                    if(self.__raftViceLeader == self.__selfNodeAddr):
+                        print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
@@ -701,6 +731,11 @@ class SyncObj(object):
         return self._idToMethod[funcID](*args, **kwargs)
 
     def _onMessageReceived(self, nodeAddr, message):
+        #print(message['type'])
+        if(randint(0, 10) < 1):
+            return;
+        if message['type'] == 'new_vice' and self.__selfNodeAddr is not None:
+            self.__raftViceLeader = message['vice']
 
         if message['type'] == 'request_vote' and self.__selfNodeAddr is not None:
 
@@ -713,11 +748,11 @@ class SyncObj(object):
             if self.__raftState in (_RAFT_STATE.FOLLOWER, _RAFT_STATE.CANDIDATE):
                 lastLogTerm = message['last_log_term']
                 lastLogIdx = message['last_log_index']
-                if message['term'] >= self.__raftCurrentTerm:
-                    if lastLogTerm < self.__getCurrentLogTerm():
+                if message['term'] >= self.__raftCurrentTerm or nodeAddr == self.__raftViceLeader:
+                    if lastLogTerm < self.__getCurrentLogTerm() and nodeAddr != self.__raftViceLeader:
                         return
                     if lastLogTerm == self.__getCurrentLogTerm() and \
-                            lastLogIdx < self.__getCurrentLogIndex():
+                            lastLogIdx < self.__getCurrentLogIndex() and nodeAddr != self.__raftViceLeader:
                         return
                     if self.__votedFor is not None:
                         return
@@ -828,6 +863,11 @@ class SyncObj(object):
                 self.__votesCount += 1
 
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
+                    print("NEW LEADER BY ELEC")
+                    print("VL" + str(self.__raftViceLeader))
+                    print("me" + self.__selfNodeAddr)
+                    if(self.__raftViceLeader == self.__selfNodeAddr):
+                        print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
@@ -991,6 +1031,7 @@ class SyncObj(object):
         """
         return self.__raftState == _RAFT_STATE.LEADER
 
+
     def _getLeader(self):
         """ Returns last known leader.
 
@@ -1000,6 +1041,7 @@ class SyncObj(object):
         :return: Address of the last known leader node.
         :rtype: str
         """
+
         return self.__raftLeader
 
     def isReady(self):
@@ -1034,6 +1076,7 @@ class SyncObj(object):
         self.__raftLog.deleteEntriesTo(diff)
 
     def __onBecomeLeader(self):
+
         self.__raftLeader = self.__selfNodeAddr
         self.__setState(_RAFT_STATE.LEADER)
 
@@ -1044,6 +1087,18 @@ class SyncObj(object):
             self.__raftMatchIndex[nodeAddr] = 0
             self.__lastResponseTime[node.getAddress()] = time.time()
 
+        for node in self.__nodes:
+            nodeAddr = node.getAddress()
+            if(nodeAddr != self.__selfNodeAddr):
+                self.__raftViceLeader = nodeAddr #new Vice Leader
+                for node in self.__nodes:
+                    message = {
+                        'type': 'new_vice',
+                        'vice': self.__raftViceLeader
+                    }
+                    node.send(message)
+                break
+
         # No-op command after leader election.
         idx, term = self.__getCurrentLogIndex() + 1, self.__raftCurrentTerm
         self.__raftLog.add(_bchr(_COMMAND_TYPE.NO_OP), idx, term)
@@ -1052,6 +1107,8 @@ class SyncObj(object):
             self.__sendAppendEntries()
 
         self.__sendAppendEntries()
+
+
 
     def __setState(self, newState):
         oldState = self.__raftState
@@ -1066,6 +1123,9 @@ class SyncObj(object):
         self.__commandsWaitingReply = {}
 
     def __sendAppendEntries(self):
+        if(randint(0, 100) < 99): #fail test
+            return
+
         self.__newAppendEntriesTime = time.time() + self.__conf.appendEntriesPeriod
 
         startTime = time.time()

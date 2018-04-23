@@ -5,6 +5,9 @@ import pytest
 import random
 import threading
 import sys
+from threading import Thread
+from time import sleep
+
 import pysyncobj.pickle as pickle
 if sys.version_info >= (3, 0):
 	xrange = range
@@ -30,6 +33,19 @@ class TEST_TYPE:
 	AUTO_TICK_1 = 5
 	WAIT_BIND = 6
 	LARGE_COMMAND = 7
+
+def threaded_function(obj):
+	currTime = -1
+	while 1:
+        #print(obj._getLeader())
+		if(currTime != -1 and obj._getLeader() != None):
+			print("LEADER CHANGE: " + str(time.time() - currTime))
+			currTime = -1
+		if(obj._getLeader() == None):
+			currTime = time.time()
+
+        sleep(0.001)
+
 
 class TestObj(SyncObj):
 
@@ -311,6 +327,16 @@ def test_syncThreeObjectsLeaderFail():
 	assert o2._isReady()
 	assert o3._isReady()
 
+	thread = Thread(target = threaded_function, args = (o1, ))
+	thread.start()
+
+	thread = Thread(target = threaded_function, args = (o2, ))
+	thread.start()
+
+	thread = Thread(target = threaded_function, args = (o3, ))
+	thread.start()
+
+
 	assert o1._getLeader() in a
 	assert o1._getLeader() == o2._getLeader()
 	assert o1._getLeader() == o3._getLeader()
@@ -350,6 +376,111 @@ def test_syncThreeObjectsLeaderFail():
 
 	for o in objs:
 		assert o.getCounter() == 400
+
+
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+	doTicks(newObjs, 10, stopFunc=lambda: newObjs[0].getCounter() == 400)
+
+
+	o1._printStatus()
+	o2._printStatus()
+	o3._printStatus()
+	thread.join()
 
 	o1._destroy()
 	o2._destroy()
@@ -1100,42 +1231,52 @@ def test_journalTest2():
 	journal._destroy()
 	removeFiles(journalFiles)
 
-def test_autoTick1():
+def test_autoTick():
 	random.seed(42)
 
-	a = [getNextAddr(), getNextAddr()]
+	a = [getNextAddr(), getNextAddr(), getNextAddr(), getNextAddr()]
 
-	o1 = TestObj(a[0], [a[1]], TEST_TYPE.AUTO_TICK_1)
-	o2 = TestObj(a[1], [a[0]], TEST_TYPE.AUTO_TICK_1)
+	o1 = TestObj(a[0], [a[1],a[2],a[3]], TEST_TYPE.AUTO_TICK_1)
+	o2 = TestObj(a[1], [a[0],a[2],a[3]], TEST_TYPE.AUTO_TICK_1)
+	o3 = TestObj(a[2], [a[0],a[1],a[3]], TEST_TYPE.AUTO_TICK_1)
+	o4 = TestObj(a[3], [a[0],a[1],a[2]], TEST_TYPE.AUTO_TICK_1)
 
-	assert not o1._isReady()
-	assert not o2._isReady()
 
-	time.sleep(4.5)
-	assert o1._isReady()
-	assert o2._isReady()
+	thread = Thread(target = threaded_function, args = (o1, ))
+	thread.start()
 
-	assert o1._getLeader() in a
-	assert o1._getLeader() == o2._getLeader()
-	assert o1._isReady()
-	assert o2._isReady()
+	thread = Thread(target = threaded_function, args = (o2, ))
+	thread.start()
+
+	thread = Thread(target = threaded_function, args = (o3, ))
+	thread.start()
+
+	thread = Thread(target = threaded_function, args = (o4, ))
+	thread.start()
+
+	time.sleep(104.5)
+
 
 	o1.addValue(150)
 	o2.addValue(200)
+	o3.addValue(550)
+	o4.addValue(100)
 
-	time.sleep(1.5)
+	time.sleep(101.5)
 
-	assert o1._isReady()
-	assert o2._isReady()
 
-	assert o1.getCounter() == 350
-	assert o2.getCounter() == 350
 
-	assert o2.addValueSync(10) == 360
-	assert o1.addValueSync(20) == 380
-
-	o1._destroy()
-	o2._destroy()
+	time.sleep(4.5)
+	o1.addValue(150)
+	o2.addValue(200)
+	time.sleep(4.5)
+	o1.addValue(150)
+	o2.addValue(200)
+	time.sleep(4.5)
+	o1.addValue(150)
+	o2.addValue(200)
+	#o1._destroy()
+	#o2._destroy()
 	time.sleep(0.5)
 
 
