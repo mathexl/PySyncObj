@@ -37,15 +37,17 @@ class TEST_TYPE:
 def threaded_function(obj):
 	currTime = -1
 	diffs = []
+	coun = 0
 	try:
 		while 1:
 	        #print(obj._getLeader())
 			if(currTime != -1 and obj._getLeader() != None):
 				diffs.append(time.time() - currTime)
-				print("LEADER CHANGE AVERAGE: " + str(sum(diffs)/len(diffs)))
+				print(str(coun) + "LEADER CHANGE AVERAGE: " + str(sum(diffs)/len(diffs)))
 				currTime = -1
 			if(currTime == -1 and obj._getLeader() == None):
 				currTime = time.time()
+				coun = coun + 1
 
 	        sleep(0.001)
 	except KeyboardInterrupt:

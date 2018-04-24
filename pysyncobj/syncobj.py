@@ -733,7 +733,7 @@ class SyncObj(object):
 
     def _onMessageReceived(self, nodeAddr, message):
         #print(message['type'])
-        if(randint(0, 10) < 1):
+        if(randint(0, 10) < 3):
             return;
         if message['type'] == 'new_vice' and self.__selfNodeAddr is not None:
             self.__raftViceLeader = message['vice']
