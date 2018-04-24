@@ -533,7 +533,8 @@ class SyncObj(object):
             #am vice
             #print("vice: " + str(self.__raftViceLeader))
             #print("me: " + str(self.__selfNodeAddr))
-            if (self.__raftElectionDeadline / 2) < time.time() and self.__connectedToAnyone() and self.__raftViceLeader == self.__selfNodeAddr:
+
+            if (self.__raftElectionDeadline) < time.time() and self.__connectedToAnyone() and self.__raftViceLeader == self.__selfNodeAddr:
                 self.__raftElectionDeadline = time.time() + self.__generateRaftTimeout()
                 self.__raftLeader = None
                 self.__setState(_RAFT_STATE.CANDIDATE)
@@ -549,10 +550,10 @@ class SyncObj(object):
                     })
                 self.__onLeaderChanged()
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    print("NEW LEADER BY ELEC (VICE)")
+                    #print("NEW LEADER BY ELEC (VICE)")
                     self.__onBecomeLeader()
 
-            if self.__raftElectionDeadline < time.time() and self.__connectedToAnyone():
+            elif self.__raftElectionDeadline < time.time() and self.__connectedToAnyone():
                 self.__raftElectionDeadline = time.time() + self.__generateRaftTimeout()
                 self.__raftLeader = None
                 self.__setState(_RAFT_STATE.CANDIDATE)
@@ -568,10 +569,10 @@ class SyncObj(object):
                     })
                 self.__onLeaderChanged()
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    print("NEW LEADER BY ELEC")
+                    #print("NEW LEADER BY ELEC")
 
-                    if(self.__raftViceLeader == self.__selfNodeAddr):
-                        print("New Leader is Vice")
+                    #if(self.__raftViceLeader == self.__selfNodeAddr):
+                    #    print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
@@ -863,11 +864,11 @@ class SyncObj(object):
                 self.__votesCount += 1
 
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    print("NEW LEADER BY ELEC")
-                    print("VL" + str(self.__raftViceLeader))
-                    print("me" + self.__selfNodeAddr)
-                    if(self.__raftViceLeader == self.__selfNodeAddr):
-                        print("New Leader is Vice")
+                    #print("NEW LEADER BY ELEC")
+                    #print("VL" + str(self.__raftViceLeader))
+                    #print("me" + self.__selfNodeAddr)
+                    #if(self.__raftViceLeader == self.__selfNodeAddr):
+                        #print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
@@ -907,8 +908,17 @@ class SyncObj(object):
         })
 
     def __generateRaftTimeout(self):
-        minTimeout = self.__conf.raftMinTimeout
-        maxTimeout = self.__conf.raftMaxTimeout
+        if(self.__raftViceLeader == self.__selfNodeAddr):
+            minTimeout = self.__conf.raftMinTimeoutforVice
+            maxTimeout = self.__conf.raftMaxTimeoutforVice
+        else:
+            minTimeout = self.__conf.raftMinTimeout
+            maxTimeout = self.__conf.raftMaxTimeout
+        return minTimeout + (maxTimeout - minTimeout) * random.random()
+
+    def __generateRaftTimeoutforVice(self):
+        minTimeout = self.__conf.raftMinTimeoutforVice
+        maxTimeout = self.__conf.raftMaxTimeoutforVice
         return minTimeout + (maxTimeout - minTimeout) * random.random()
 
     def __onNewConnection(self, conn):

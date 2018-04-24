@@ -36,15 +36,21 @@ class TEST_TYPE:
 
 def threaded_function(obj):
 	currTime = -1
-	while 1:
-        #print(obj._getLeader())
-		if(currTime != -1 and obj._getLeader() != None):
-			print("LEADER CHANGE: " + str(time.time() - currTime))
-			currTime = -1
-		if(obj._getLeader() == None):
-			currTime = time.time()
+	diffs = []
+	try:
+		while 1:
+	        #print(obj._getLeader())
+			if(currTime != -1 and obj._getLeader() != None):
+				diffs.append(time.time() - currTime)
+				print("LEADER CHANGE AVERAGE: " + str(sum(diffs)/len(diffs)))
+				currTime = -1
+			if(currTime == -1 and obj._getLeader() == None):
+				currTime = time.time()
 
-        sleep(0.001)
+	        sleep(0.001)
+	except KeyboardInterrupt:
+		print('interrupted!')
+
 
 
 class TestObj(SyncObj):
@@ -1244,7 +1250,7 @@ def test_autoTick():
 
 	thread = Thread(target = threaded_function, args = (o1, ))
 	thread.start()
-
+	'''
 	thread = Thread(target = threaded_function, args = (o2, ))
 	thread.start()
 
@@ -1253,7 +1259,7 @@ def test_autoTick():
 
 	thread = Thread(target = threaded_function, args = (o4, ))
 	thread.start()
-
+	'''
 	time.sleep(104.5)
 
 

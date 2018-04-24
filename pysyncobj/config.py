@@ -33,11 +33,15 @@ class SyncObjConf(object):
 
         #: After randomly selected timeout (in range from minTimeout to maxTimeout)
         #: leader considered dead, and leader election starts.
-        self.raftMinTimeout = kwargs.get('raftMinTimeout', 0.4)
+        self.raftMinTimeout = kwargs.get('raftMinTimeout', 0.6)
 
         #: After randomly selected timeout (in range from minTimeout to maxTimeout)
         #: leader considered dead by Vice, and the Vice triggers an affirmation vote.
         self.raftMinTimeoutforVice = kwargs.get('raftMinTimeoutforVice', 0.2)
+
+        #: After randomly selected timeout (in range from minTimeout to maxTimeout)
+        #: leader considered dead by Vice, and the Vice triggers an affirmation vote.
+        self.raftMaxTimeoutforVice = kwargs.get('raftMinTimeoutforVice', 0.6)
 
         #: Same as raftMinTimeout
         self.raftMaxTimeout = kwargs.get('raftMaxTimeout', 1.4)
