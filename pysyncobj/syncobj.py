@@ -550,7 +550,7 @@ class SyncObj(object):
                     })
                 self.__onLeaderChanged()
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    #print("NEW LEADER BY ELEC (VICE)")
+                    print("NEW LEADER BY ELEC (VIA VICE)")
                     self.__onBecomeLeader()
 
             elif self.__raftElectionDeadline < time.time() and self.__connectedToAnyone():
@@ -569,10 +569,10 @@ class SyncObj(object):
                     })
                 self.__onLeaderChanged()
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    #print("NEW LEADER BY ELEC")
+                    print("NEW LEADER BY ELEC")
 
-                    #if(self.__raftViceLeader == self.__selfNodeAddr):
-                    #    print("New Leader is Vice")
+                    if(self.__raftViceLeader == self.__selfNodeAddr):
+                        print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
@@ -732,7 +732,7 @@ class SyncObj(object):
         return self._idToMethod[funcID](*args, **kwargs)
 
     def _onMessageReceived(self, nodeAddr, message):
-        #print(message['type'])
+        print(message['type'] + " recieved from " + str(nodeAddr))
         if(randint(0, 10) < 3):
             return;
         if message['type'] == 'new_vice' and self.__selfNodeAddr is not None:
@@ -864,11 +864,11 @@ class SyncObj(object):
                 self.__votesCount += 1
 
                 if self.__votesCount > (len(self.__nodes) + 1) / 2:
-                    #print("NEW LEADER BY ELEC")
+                    print("NEW LEADER BY ELEC")
                     #print("VL" + str(self.__raftViceLeader))
                     #print("me" + self.__selfNodeAddr)
-                    #if(self.__raftViceLeader == self.__selfNodeAddr):
-                        #print("New Leader is Vice")
+                    if(self.__raftViceLeader == self.__selfNodeAddr):
+                        print("New Leader is Vice")
                     self.__onBecomeLeader()
 
         if self.__raftState == _RAFT_STATE.LEADER:
