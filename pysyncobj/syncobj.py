@@ -1106,6 +1106,7 @@ class SyncObj(object):
                         'type': 'new_vice',
                         'vice': self.__raftViceLeader
                     }
+                    #DISABLE THE FOLLOWING TO GO BACK TO RAFT
                     node.send(message)
                 break
 
